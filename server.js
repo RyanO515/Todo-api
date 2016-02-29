@@ -16,30 +16,26 @@ app.get("/", function(req, res) {
 // GET todos?completed=true&q=work
 
 app.get("/todos", function(req, res) {
-    var queryParams = req.query;
-    var filteredTodos = todos;
+    var query = req.query;
+    var where = {};
 
-    // if has property && completed = true
-    //    filteredTodos = _.where(filteredTodos, ?)
-    // else if has prop && completed is false
-
-    if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: true
-        });
-    } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-        filteredTodos = _.where(filteredTodos, {
-            completed: false
-        });
+    if (query.hasOwnProperty('completed') && query.completed === 'true') {
+        where.completed = true;
+    } else if (query.hasOwnProperty('completed') && query.completed === 'false') {
+        where.completed = false;
     }
 
-    if (queryParams.hasOwnProperty("q") && queryParams.q.length > 0) {
-        filteredTodos = _.filter(filteredTodos, function(todo) {
-            return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
-        });
-    };
+    if (query.hasOwnProperty('q') && query.q.length > 0) {
+        where.description = {
+            $like: '%' + query.q + '%'
+        };
+    }
 
-    res.json(filteredTodos);
+    db.todo.findAll({where: where}).then(function (todos) {
+        res.json(todos);
+    }, function (e) {
+        res.status(500).send();
+    });
 });
 
 //GET todos/:id
@@ -56,15 +52,6 @@ app.get('/todos/:id', function(req, res) {
     }, function(e) {
         res.status(500).send(e.message);
     });
-    // var matchedTodo = _.findWhere(todos, {
-    //     id: todoId
-    // });
-
-    // if (matchedTodo) {
-    //     res.json(matchedTodo);
-    // } else {
-    //     res.status(404).send();
-    // }
 });
 
 // POST /todos
@@ -77,20 +64,6 @@ app.post('/todos', function(req, res) {
     }), function (e) {
         res.status(400).json(e);
     };
-
-    // body = _.pick(body, 'description', 'completed'); // if other fields entered, only return desc & completed
-
-    // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-    //     return res.status(400).send();
-    // } // validate fields and return 400 status if completed is not a boolean, desc not a string, or without text entry
-
-    // body.description = body.description.trim(); // trim off before or after white space
-
-    // body.id = todoNextId++; // add 1 to id after assignment
-
-    // todos.push(body); // push body object to todos
-
-    // res.json(body);
 });
 
 // DELETE /todos/:id
