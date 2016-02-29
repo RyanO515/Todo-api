@@ -118,6 +118,7 @@ app.put('/todos/:id', function(req, res) {
     });
 });
 
+// POST /users
 app.post('/users', function (req, res) {
     var body = _.pick(req.body, 'email', 'password');
 

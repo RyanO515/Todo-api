@@ -27,5 +27,5 @@ module.exports = db;
 
 
 //creates new sqlite database
-//loads in todo model
+//loads in todo & user model
 // exports db object with todo model, sequelize instance, and Sequelize library
