@@ -1,6 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var _ = require("underscore");
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -61,19 +62,25 @@ app.get('/todos/:id', function(req, res) {
 app.post('/todos', function(req, res) {
     var body = req.body;
 
-    body = _.pick(body, 'description', 'completed'); // if other fields entered, only return desc & completed
+    db.todo.create(body).then(function (todo) {
+        res.json(todo.toJSON());
+    }), function (e) {
+        res.status(400).json(e);
+    };
 
-    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-        return res.status(400).send();
-    } // validate fields and return 400 status if completed is not a boolean, desc not a string, or without text entry
+    // body = _.pick(body, 'description', 'completed'); // if other fields entered, only return desc & completed
 
-    body.description = body.description.trim(); // trim off before or after white space
+    // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+    //     return res.status(400).send();
+    // } // validate fields and return 400 status if completed is not a boolean, desc not a string, or without text entry
 
-    body.id = todoNextId++; // add 1 to id after assignment
+    // body.description = body.description.trim(); // trim off before or after white space
 
-    todos.push(body); // push body object to todos
+    // body.id = todoNextId++; // add 1 to id after assignment
 
-    res.json(body);
+    // todos.push(body); // push body object to todos
+
+    // res.json(body);
 });
 
 // DELETE /todos/:id
@@ -128,6 +135,9 @@ app.put('/todos/:id', function(req, res) {
     res.json(matchedTodo);
 });
 
-app.listen(PORT, function() {
-    console.log("Express listening on port " + PORT + "!");
+db.sequelize.sync().then(function () {
+    app.listen(PORT, function() {
+        console.log("Express listening on port " + PORT + "!");
+    });
 });
+
