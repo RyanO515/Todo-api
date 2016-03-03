@@ -19,6 +19,7 @@ var db = {};
 
 db.todo = sequelize.import(__dirname + '/models/todo.js');
 db.user = sequelize.import(__dirname + '/models/user.js');
+db.token = sequelize.import(__dirname + '/models/token.js');
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
@@ -29,5 +30,5 @@ module.exports = db;
 
 
 //creates new sqlite database
-//loads in todo & user model
+//loads in todo, token & user model
 // exports db object with todo model, sequelize instance, and Sequelize library
